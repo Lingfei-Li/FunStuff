@@ -5,9 +5,20 @@
 define(function (require, exports, module) {
     "use strict";
 
+    var css = ".h-phantom{position:relative;}\
+    .h-phantom:before{content:attr(data-color);color:inherit;background-color:inherit;pointer-events:none;position:absolute;top:0;left:0;border-radius:2px;white-space:nowrap;}";
+        
+    var document = window.document;
+    var style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode(css));
+    document.head.appendChild(style);
+
+
     var CommandManager = brackets.getModule("command/CommandManager"),
         EditorManager  = brackets.getModule("editor/EditorManager"),
-        Menus          = brackets.getModule("command/Menus");
+        Menus          = brackets.getModule("command/Menus"),
+        Colorhighlighter = require('ColorHighlighter');
 
     const separationBlankLines = 2;
     const dateSeparator = "----------";
@@ -72,15 +83,8 @@ define(function (require, exports, module) {
     function handleFunStuffFormatting() {
         var editor = EditorManager.getFocusedEditor();
         if (editor) {
-
-            console.log(editor);
-            console.log(editor._codeMirror);
-            console.log(editor._codeMirror._colorHighlighter);
-
-
             let cachedText = editor.document.getText();
             let cachedTextArray = cachedText.split("\n");
-
 
             // Set curDate to tomorrow to set today's notes conveniently
             let today = new Date();
@@ -161,7 +165,6 @@ define(function (require, exports, module) {
                 }
             }
             let joinedText = cachedTextArray.join("\n");
-            console.log(joinedText);
             editor.document.setText(joinedText);
         }
     }
@@ -179,4 +182,14 @@ define(function (require, exports, module) {
     // We could also add a key binding at the same time:
     //menu.addMenuItem(MY_COMMAND_ID, "Ctrl-Alt-W");
     // (Note: "Ctrl" is automatically mapped to "Cmd" on Mac)
+
+    EditorManager.on('activeEditorChange', function (event, editor) {
+        if (editor && editor._codeMirror) {
+           var cm = editor._codeMirror;
+
+           if (!cm._colorHighlighter) {
+               cm._colorHighlighter = new Colorhighlighter(cm);
+           }
+       }
+    });
 });
