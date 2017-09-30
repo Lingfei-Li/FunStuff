@@ -5,8 +5,12 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var css = ".h-phantom{position:relative;}\
-    .h-phantom:before{content:attr(data-color);color:inherit;background-color:inherit;pointer-events:none;position:absolute;top:0;left:0;border-radius:2px;white-space:nowrap;}";
+    var css = ".cm-date-separator{color: red;}\
+               .cm-date-header{color: blue;}\
+               .cm-week-header{color: green;}\
+               .cm-year-header{color: grey;}\
+               .highlighted-bg{background: cyan;}\
+               ";
         
     var document = window.document;
     var style = document.createElement('style');
@@ -18,11 +22,17 @@ define(function (require, exports, module) {
     var CommandManager = brackets.getModule("command/CommandManager"),
         EditorManager  = brackets.getModule("editor/EditorManager"),
         Menus          = brackets.getModule("command/Menus"),
+        LanguageManager = brackets.getModule("language/LanguageManager"),
         Colorhighlighter = require('ColorHighlighter');
 
     const separationBlankLines = 2;
     const dateSeparator = "----------";
+    const weekSeparator = "==========";
     const dateSeparatorRegex = /-----+/i;
+    const weekSeparatorRegex = /=====+/i;
+    const dateHeaderRegex = /^1?\d-\d?\d (Mon|Tue|Wed|Thu|Fri|Sat|Sun)\:/i;
+    const weekHeaderRegex = /Week \d+\:/i;
+    const yearHeaderRegex = /Year 20\d{2}\:/i;
 
     function calcDiffDays(date1, date2) {
         const oneDayDiffMilliSec = 1000*60*60*24;
@@ -94,11 +104,7 @@ define(function (require, exports, module) {
             for(let lineNumber = 0, lineText = ""; (lineText = cachedTextArray[lineNumber]) !== undefined; lineNumber ++) {
                 console.log(lineNumber, lineText);
 
-                let dateRegex = /[1]?\d-[1-3]?\d (Mon|Tue|Wed|Thu|Fri|Sat|Sun)/i;
-                let weekRegex = /Week \d+/i;
-                let yearRegex = /20\d\d/i;
-
-                if(dateRegex.test(lineText)) {
+                if(dateHeaderRegex.test(lineText)) {
                     console.log("Match date");
                     console.log("cur date:", curDate);
 
@@ -157,10 +163,10 @@ define(function (require, exports, module) {
                     // Update curDate
                     curDate = newDate;
                 }
-                else if(weekRegex.test(lineText)) {
+                else if(weekHeaderRegex.test(lineText)) {
                     console.log("Match week!");
                 }
-                else if(yearRegex.test(lineText)) {
+                else if(yearHeaderRegex.test(lineText)) {
                     console.log("Match year!");
                 }
             }
@@ -187,9 +193,41 @@ define(function (require, exports, module) {
         if (editor && editor._codeMirror) {
            var cm = editor._codeMirror;
 
+           cm.addLineClass(0, 'background', 'highlighted-bg'); 
+           cm.addLineClass(0, 'text', 'highlighted-bg'); 
+           cm.addLineClass(0, 'wrap', 'highlighted-bg'); 
+
+           console.log(editor);
+           console.log(cm);
+           console.log(cm.options.mode);
+
            if (!cm._colorHighlighter) {
                cm._colorHighlighter = new Colorhighlighter(cm);
            }
        }
     });
+
+
+    /* Example definition of a simple mode that understands a subset of
+    * JavaScript:
+    */
+    var CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror");
+    CodeMirror.defineSimpleMode("funstuff", {
+        start: [
+            {regex: /\d+\./i, token: "numbering"},
+            {regex: dateSeparatorRegex, token: "date-separator"},
+            {regex: weekSeparatorRegex, token: "week-separator"},
+            {regex: dateHeaderRegex, token: "date-header"},
+            {regex: weekHeaderRegex, token: "week-header"},
+            {regex: yearHeaderRegex, token: "year-header"},
+        ]
+    });
+
+    // Define the custom file type/mode
+    LanguageManager.defineLanguage("funstuff", {
+        name: "Funstuff",
+        mode: "funstuff",
+        fileExtensions: ["stuff"]
+    });
+
 });

@@ -14,7 +14,7 @@ define(function (require) {
 
             const separatorText = "----------";
             if(line.innerText === separatorText) {
-                line.style.color = '#f00';
+                // line.style.color = '#f00';
             }
         }
     };
