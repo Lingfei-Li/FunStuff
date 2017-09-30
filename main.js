@@ -214,7 +214,6 @@ define(function (require, exports, module) {
     var CodeMirror = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror");
     CodeMirror.defineSimpleMode("funstuff", {
         start: [
-            {regex: /\d+\./i, token: "numbering"},
             {regex: dateSeparatorRegex, token: "date-separator"},
             {regex: weekSeparatorRegex, token: "week-separator"},
             {regex: dateHeaderRegex, token: "date-header"},
