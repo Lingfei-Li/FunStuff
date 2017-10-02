@@ -9,6 +9,7 @@ define(function (require, exports, module) {
                .cm-date-header{color: blue;}\
                .cm-week-header{color: green;}\
                .cm-year-header{color: grey;}\
+               .curr-date-block{background: #fff;}\
                .highlighted-bg{background: cyan;}\
                ";
         
@@ -33,6 +34,7 @@ define(function (require, exports, module) {
     const dateHeaderRegex = /^1?\d-\d?\d (Mon|Tue|Wed|Thu|Fri|Sat|Sun)\:/i;
     const weekHeaderRegex = /Week \d+\:/i;
     const yearHeaderRegex = /Year 20\d{2}\:/i;
+    const workStartDate = new Date(2017, 5, 26);   // Start date: Jun 26, 2017 for week calc
 
     function calcDiffDays(date1, date2) {
         const oneDayDiffMilliSec = 1000*60*60*24;
@@ -102,12 +104,7 @@ define(function (require, exports, module) {
             let curDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
             for(let lineNumber = 0, lineText = ""; (lineText = cachedTextArray[lineNumber]) !== undefined; lineNumber ++) {
-                console.log(lineNumber, lineText);
-
                 if(dateHeaderRegex.test(lineText)) {
-                    console.log("Match date");
-                    console.log("cur date:", curDate);
-
                     let newMonthDate = lineText.split(" ")[0].split("-");
                     let newMonth = parseInt(newMonthDate[0]);
                     let newDay = parseInt(newMonthDate[1]);
@@ -134,12 +131,9 @@ define(function (require, exports, module) {
 
                             cachedTextArray.splice(lineNumber, 0, missingDateText);
 
-                            console.log("Adding a missing date: ", missingDate);
-
                             newDate = missingDate;
                         }
                     }
-
                     // Format the content 
                     if(newDay != 5) {
                         let lineNumberChange = formatBlankAboveLine(cachedTextArray, lineNumber);
@@ -191,21 +185,22 @@ define(function (require, exports, module) {
 
     EditorManager.on('activeEditorChange', function (event, editor) {
         if (editor && editor._codeMirror) {
-           var cm = editor._codeMirror;
+            var cm = editor._codeMirror;
 
-           cm.addLineClass(0, 'background', 'highlighted-bg'); 
-           cm.addLineClass(0, 'text', 'highlighted-bg'); 
-           cm.addLineClass(0, 'wrap', 'highlighted-bg'); 
+            if (!cm._colorHighlighter) {
+                cm._colorHighlighter = new Colorhighlighter(cm);
+            }
 
-           console.log(editor);
-           console.log(cm);
-           console.log(cm.options.mode);
+            console.log(cm);
 
-           if (!cm._colorHighlighter) {
-               cm._colorHighlighter = new Colorhighlighter(cm);
-           }
+            editor.on('cursorActivity', function(event, editor) {
+                const cursorPos = editor.getCursorPos();
+                console.log(cursorPos);
+                cm._colorHighlighter.highlightCurrDateBlock(cm, cursorPos);
+            });
        }
     });
+
 
 
     /* Example definition of a simple mode that understands a subset of
