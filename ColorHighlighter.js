@@ -2,11 +2,14 @@ define(function (require) {
     'use strict';
 
     var highlightedLines = [];
+    var todoBlockLines = [];
     const currDateBlockClassName = "curr-date-block";
+    const todoBlockClassName = "todo-block";
 
     function Colorhighlighter(cm) {
         cm.on('renderLine', this.process.bind(this));
         this.process(this._cm, null, cm.display.lineDiv);
+        this.colorizeTodo(cm);
     }
 
     Colorhighlighter.prototype.process = function (cm, cmline, node) {
@@ -47,6 +50,32 @@ define(function (require) {
                 }
             }
             offset ++;
+        }
+    }
+
+    Colorhighlighter.prototype.colorizeTodo = function(cm) {
+        todoBlockLines.forEach(function(line) {
+            cm.removeLineClass(line, 'background', todoBlockClassName); 
+        });
+        todoBlockLines = [];
+
+        let todoStarted = false;
+        for(let i = 0; i < cm.lineCount(); i ++) {
+            const todoBlockRegex = /#####+/i
+            if(todoBlockRegex.test(cm.getLine(i)) && !todoStarted) {
+                cm.addLineClass(i, 'background', todoBlockClassName);
+                todoBlockLines.push(i);
+                todoStarted = true;
+            } else if(todoBlockRegex.test(cm.getLine(i)) && todoStarted) {
+                cm.addLineClass(i, 'background', todoBlockClassName);
+                todoBlockLines.push(i);
+                todoStarted = false;
+            } else if(todoStarted) {
+                cm.addLineClass(i, 'background', todoBlockClassName);
+                todoBlockLines.push(i);
+            } else if(!todoStarted){
+                continue;
+            }
         }
     }
 

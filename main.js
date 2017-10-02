@@ -5,12 +5,14 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var css = ".cm-date-separator{color: red;}\
-               .cm-date-header{color: blue;}\
-               .cm-week-header{color: green;}\
+    // Color: https://designschool.canva.com/blog/website-color-schemes/
+    var css = ".cm-date-separator{color: #E8E8E8;}\
+               .cm-date-header{color: #985E6D;}\
+               .cm-week-header{color: #98878F;}\
                .cm-year-header{color: grey;}\
-               .curr-date-block{background: #fff;}\
+               .curr-date-block{background: #6D7993; opacity: 0.1;}\
                .highlighted-bg{background: cyan;}\
+               .todo-block{background: cyan; opacity: 0.1;}\
                ";
         
     var document = window.document;
@@ -28,13 +30,22 @@ define(function (require, exports, module) {
 
     const separationBlankLines = 2;
     const dateSeparator = "----------";
-    const weekSeparator = "==========";
+    const weekSeparator = "----------";
+    const todoBlockRegex = /#####+/i;
     const dateSeparatorRegex = /-----+/i;
-    const weekSeparatorRegex = /=====+/i;
+    const weekSeparatorRegex = /-----+/i;
     const dateHeaderRegex = /^1?\d-\d?\d (Mon|Tue|Wed|Thu|Fri|Sat|Sun)\:/i;
     const weekHeaderRegex = /Week \d+\:/i;
     const yearHeaderRegex = /Year 20\d{2}\:/i;
     const workStartDate = new Date(2017, 5, 26);   // Start date: Jun 26, 2017 for week calc
+
+    function debugPrint() {
+        let msg = "";
+        for(let i = 0; i < arguments.length; i ++) {
+            msg += arguments[i] + " ";
+        }
+        console.log(msg);
+    }
 
     function calcDiffDays(date1, date2) {
         const oneDayDiffMilliSec = 1000*60*60*24;
@@ -103,8 +114,9 @@ define(function (require, exports, module) {
             let curYear = today.getFullYear();
             let curDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-            for(let lineNumber = 0, lineText = ""; (lineText = cachedTextArray[lineNumber]) !== undefined; lineNumber ++) {
+            for(let lineNumber = 0, lineText = ""; lineNumber < editor._codeMirror.lineCount(); lineNumber ++) {
                 if(dateHeaderRegex.test(lineText)) {
+                    debugPrint("Match date!", lineNumber);
                     let newMonthDate = lineText.split(" ")[0].split("-");
                     let newMonth = parseInt(newMonthDate[0]);
                     let newDay = parseInt(newMonthDate[1]);
@@ -189,13 +201,11 @@ define(function (require, exports, module) {
 
             if (!cm._colorHighlighter) {
                 cm._colorHighlighter = new Colorhighlighter(cm);
+                console.log(cm.display.lineDiv);
             }
-
-            console.log(cm);
 
             editor.on('cursorActivity', function(event, editor) {
                 const cursorPos = editor.getCursorPos();
-                console.log(cursorPos);
                 cm._colorHighlighter.highlightCurrDateBlock(cm, cursorPos);
             });
        }
@@ -214,6 +224,7 @@ define(function (require, exports, module) {
             {regex: dateHeaderRegex, token: "date-header"},
             {regex: weekHeaderRegex, token: "week-header"},
             {regex: yearHeaderRegex, token: "year-header"},
+            {regex: todoBlockRegex, token: "todo-block"},
         ]
     });
 
