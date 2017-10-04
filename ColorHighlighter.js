@@ -8,8 +8,14 @@ define(function (require) {
 
     function Colorhighlighter(cm) {
         cm.on('renderLine', this.process.bind(this));
-        this.process(this._cm, null, cm.display.lineDiv);
-        this.colorizeTodo(cm);
+        if(validateMode(cm.doc.mode.name)) {
+            this.process(this._cm, null, cm.display.lineDiv);
+            this.colorizeTodo(cm);
+        }
+    }
+
+    function validateMode(mode) {
+        return mode === "funstuff";
     }
 
     Colorhighlighter.prototype.process = function (cm, cmline, node) {
@@ -17,6 +23,9 @@ define(function (require) {
     };
 
     Colorhighlighter.prototype.highlightCurrDateBlock = function(cm, cursorPos) {
+        if(!validateMode(cm.doc.mode.name)) {
+            return;
+        }
         highlightedLines.forEach(function(line) {
             cm.removeLineClass(line, 'background', currDateBlockClassName); 
         });
@@ -54,6 +63,9 @@ define(function (require) {
     }
 
     Colorhighlighter.prototype.colorizeTodo = function(cm) {
+        if(!validateMode(cm.doc.mode.name)) {
+            return;
+        }
         todoBlockLines.forEach(function(line) {
             cm.removeLineClass(line, 'background', todoBlockClassName); 
         });

@@ -10,7 +10,7 @@ define(function (require, exports, module) {
                .cm-date-header{color: #985E6D;}\
                .cm-week-header{color: #98878F;}\
                .cm-year-header{color: grey;}\
-               .curr-date-block{background: #6D7993; opacity: 0.1;}\
+               .curr-date-block{background: #ADB9D3; opacity: 0.1;}\
                .highlighted-bg{background: cyan;}\
                .todo-block{background: cyan; opacity: 0.1;}\
                ";
