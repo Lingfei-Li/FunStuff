@@ -13,8 +13,9 @@
 
 (function() {
 
-    $("head").append("<script>" + GM_getResourceText("bootstrapJS") + "</script>");
-    $("head").append("<style>" + GM_getResourceText("bootstrapCSS") + "</style>");
+    let headDOM = $("head");
+    headDOM.append(`<script>${GM_getResourceText("bootstrapJS")}</script>`);
+    headDOM.append(`<script>${GM_getResourceText("bootstrapCSS")}</script>`);
 
     const filterButtonStyle = `
         <style>
@@ -24,7 +25,7 @@
             .filterButton:focus {outline:0;}
         </style>
     `;
-    $("head").append(filterButtonStyle);
+    headDOM.append(filterButtonStyle);
 
     function applyFilters(event) {
         let buttonClicked = document.getElementById(event.target.id);
@@ -133,8 +134,8 @@
     function extractInfo(accountEmail) {
         if(accountEmail.indexOf("aws-scm-accounts") !== -1) {
             // aws-scm-accounts+alpha-us-east-1-prototype-region@amazon.com 
-            var rx = /aws-scm-accounts\+([^-]*)-([^-]*-[^-]*-[^-]*)-([^-]*)-([^-]*).*@amazon.com/g;
-            var arr = rx.exec(accountEmail);
+            const rx = /aws-scm-accounts\+([^-]*)-([^-]*-[^-]*-[^-]*)-([^-]*)-([^-]*).*@amazon.com/g;
+            const arr = rx.exec(accountEmail);
             return {
                 "stage": arr[1],
                 "region": arr[2],
@@ -144,11 +145,6 @@
         }
         return null;
     }
-
-    function setOptions() {
-
-    }
-
 
     var makeIsengardGreatAgain = {
         options: {
@@ -165,7 +161,7 @@
         do: function() {
 
             setTimeout(function () {
-                var accountEntries = document.getElementsByClassName("console-access-account-entry");
+                const accountEntries = document.getElementsByClassName("console-access-account-entry");
                 for(let i = 0; i < accountEntries.length; i ++) {
                     let account = accountEntries[i];
                     const accountEmail = accountEntries[i].getElementsByClassName("entry-info")[0].getElementsByClassName("isengard-orange")[0].innerHTML;
