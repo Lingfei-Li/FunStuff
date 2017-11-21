@@ -9,6 +9,16 @@
 // @grant           GM_getValue
 // ==/UserScript==
 
+
+/*
+1. Add groups of favorite users
+2. Set alias for groups
+3. Edit, Delete
+4. Reload after editing
+5. Loading users
+*/
+
+
 (function() {
     let headDOM = $("head");
 
@@ -276,7 +286,6 @@
                             } else {
                                 loadingBanner.innerHTML = ``;
                             }
-                            
                         } else {
                             console.error(`Can't find user ${userLogin} from loading users`);
                         }
@@ -294,7 +303,7 @@
                     <div class="input-group search" style="margin-bottom: 10px; width: 500px;">
                         <input type="text" name="user" id="favorite_persons_input" size="10" class="form-control" placeholder="foo, bar">
                         <div class="input-group-btn">
-                            <button class="btn" type="submit" id="set_favorite_person_button">Go</button>
+                            <button class="btn" type="submit" id="set_favorite_person_button">Add</button>
                         </div>
                     </div>
 
